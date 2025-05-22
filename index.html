@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Monitoring Suhu & Kipas</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f5f5f5;
+      padding-top: 50px;
+    }
+
+    .card {
+      display: inline-block;
+      background: white;
+      padding: 30px;
+      margin: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      color: #333;
+    }
+
+    .value {
+      font-size: 2em;
+      margin-top: 10px;
+    }
+
+    .unit {
+      font-size: 0.8em;
+      color: #777;
+    }
+
+    #update-time {
+      margin-top: 20px;
+      color: #666;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+  <h1>Monitoring Suhu & Kecepatan Kipas</h1>
+
+  <div class="card">
+    <h2>Suhu</h2>
+    <div class="value" id="temperature">--</div>
+    <div class="unit">°C</div>
+  </div>
+
+  <div class="card">
+    <h2>Kecepatan Kipas</h2>
+    <div class="value" id="fan-speed">--</div>
+    <div class="unit">RPM</div>
+  </div>
+
+  <div id="update-time">Mengambil data...</div>
+
+  <script>
+    const channelID = '2970255';
+    const readAPIKey = 'YXPHDJOFH6M7LX95'; 
+    const fieldTemp = 'field1';
+    const fieldFan = 'field2';
+
+    async function fetchThingSpeakData() {
+      try {
+        const url = `https://api.thingspeak.com/channels/${channelID}/feeds.json?results=1${readAPIKey ? '&api_key=' + readAPIKey : ''}`;
+        const response = await fetch(url);
+        const data = await response.json();
+        const feed = data.feeds[0];
+
+        const temperature = feed[fieldTemp];
+        const fanSpeed = feed[fieldFan];
+        const timestamp = new Date(feed.created_at).toLocaleString();
+
+        document.getElementById('temperature').textContent = temperature || '--';
+        document.getElementById('fan-speed').textContent = fanSpeed || '--';
+        document.getElementById('update-time').textContent = `Update terakhir: ${timestamp}`;
+      } catch (error) {
+        console.error('Gagal mengambil data:', error);
+        document.getElementById('update-time').textContent = 'Gagal mengambil data dari ThingSpeak.';
+      }
+    }
+
+
+    fetchThingSpeakData();
+    setInterval(fetchThingSpeakData, 15000);
+  </script>
+</body>
+</html>
