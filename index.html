@@ -18,15 +18,22 @@
       margin: 20px;
       border-radius: 12px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      width: 200px;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 30px;
     }
 
     h2 {
       color: #333;
+      margin-top: 0;
     }
 
     .value {
       font-size: 2em;
-      margin-top: 10px;
+      margin: 10px 0;
     }
 
     .unit {
@@ -39,21 +46,38 @@
       color: #666;
       font-size: 0.9em;
     }
+
+    .cards-container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      max-width: 800px;
+      margin: 0 auto;
+    }
   </style>
 </head>
 <body>
+  <h1>Tubes Mikrokontroler & IoT</h1>
   <h1>Monitoring Suhu & Kecepatan Kipas</h1>
 
-  <div class="card">
-    <h2>Suhu</h2>
-    <div class="value" id="temperature">--</div>
-    <div class="unit">°C</div>
-  </div>
+  <div class="cards-container">
+    <div class="card">
+      <h2>Suhu</h2>
+      <div class="value" id="temperature">--</div>
+      <div class="unit">°C</div>
+    </div>
 
-  <div class="card">
-    <h2>Kecepatan Kipas</h2>
-    <div class="value" id="fan-speed">--</div>
-    <div class="unit">RPM</div>
+    <div class="card">
+      <h2>Kipas 1</h2>
+      <div class="value" id="fan1-speed">--</div>
+      <div class="unit">RPM</div>
+    </div>
+
+    <div class="card">
+      <h2>Kipas 2</h2>
+      <div class="value" id="fan2-speed">--</div>
+      <div class="unit">RPM</div>
+    </div>
   </div>
 
   <div id="update-time">Mengambil data...</div>
@@ -62,7 +86,8 @@
     const channelID = '2970255';
     const readAPIKey = 'YXPHDJOFH6M7LX95'; 
     const fieldTemp = 'field1';
-    const fieldFan = 'field2';
+    const fieldFan1 = 'field2';
+    const fieldFan2 = 'field3';
 
     async function fetchThingSpeakData() {
       try {
@@ -71,12 +96,14 @@
         const data = await response.json();
         const feed = data.feeds[0];
 
-        const temperature = feed[fieldTemp];
-        const fanSpeed = feed[fieldFan];
+        const temperature = feed[fieldTemp] || '--';
+        const fan1Speed = feed[fieldFan1] || '--';
+        const fan2Speed = feed[fieldFan2] || '--';
         const timestamp = new Date(feed.created_at).toLocaleString();
 
-        document.getElementById('temperature').textContent = temperature || '--';
-        document.getElementById('fan-speed').textContent = fanSpeed || '--';
+        document.getElementById('temperature').textContent = temperature;
+        document.getElementById('fan1-speed').textContent = fan1Speed;
+        document.getElementById('fan2-speed').textContent = fan2Speed;
         document.getElementById('update-time').textContent = `Update terakhir: ${timestamp}`;
       } catch (error) {
         console.error('Gagal mengambil data:', error);
@@ -84,7 +111,7 @@
       }
     }
 
-
+    // Fetch data immediately and then every 15 seconds
     fetchThingSpeakData();
     setInterval(fetchThingSpeakData, 15000);
   </script>
